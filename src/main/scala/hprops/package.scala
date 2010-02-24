@@ -1,6 +1,6 @@
 import metascala.HLists._
 
-package object hprops extends HPropsDSL with MAs with Instances {
+package object hprops extends HPropsDSL with MAs with Instances with FunctionWs {
   import scalaz._
   import Scalaz._
   
