@@ -13,30 +13,27 @@ sealed trait PropertyError {
 case class Missing(property: String) extends PropertyError
 case class Invalid(property: String) extends PropertyError
 
-trait AttrReader[Src, T] {
+trait AttrRead[Src, T] {
   // Failure cases must report a missing property/field name
-  def get(e: Src): Result[T]
+  def read(e: Src): Result[T]
 }
 
-trait AttrWriter[Src, T] {
+trait AttrPut[Src, T] {
   def put(t: T, e: Src): Result[Src]
+}
+
+trait AttrUpdate[Src, T] {
+  def update(s: Src, t: T): Result[T]
 }
 
 // Represents getting a value that can be read from, and written to, a source type.
 // This is a type that can be encoded in (and decoded from) Src
 // eg. ReadWrite[JSONObject, Person]
-trait ReadWrite[Src, T] extends AttrReader[Src,T] with AttrWriter[Src, T] {
+trait ReadWrite[Src, T] extends AttrRead[Src,T] with AttrPut[Src, T] {
   // Helper for working with case classes, should be able to call like this (note the <-> helper from FunctionWs):
   //   case class Foo(...)
   //   someProp >< (Foo <-> Foo.unapply _)
   def ><[U](t2: (T => U, U => T)): ReadWrite[Src, U] = this.xmap(t2._1, t2._2)
-}
-
-object ReadWrite {
-  def apply[Src, T](getF: Src => Result[T], putF: (T, Src) => Result[Src]) = new ReadWrite[Src, T] {
-    def get(e: Src) = getF(e)
-    def put(t: T, e: Src) = putF(t, e)
-  }
 }
 
 // Represents a value that can be read from, and updated from, a source type.
@@ -44,7 +41,7 @@ object ReadWrite {
 // an existing person value can be updated
 // with values from the request, or a new person
 // could be created.
-trait ReadUpdate[Src, T] extends AttrReader[Src, T] with AttrWriter[T, Src] {
+trait ReadUpdate[Src, T] extends AttrRead[Src, T] with AttrUpdate[Src, T] {
   def ><[U](t2: (T => U, U => T)): ReadUpdate[Src, U] = this.xmap(t2._1, t2._2)
 }
 
