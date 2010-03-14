@@ -15,7 +15,7 @@ class ExampleSpec extends BaseSuite {
     def put(value: String, map: Map[String,String]) = {
       map + (s -> value)
     }.success
-  } 
+  }
   
   test("storing values") {
     val m = Map[String,String]()
@@ -38,7 +38,7 @@ class ExampleSpec extends BaseSuite {
     }
   }
 
-  case class AB(a: String, b: String)    
+  case class AB(a: String, b: String)
   test("mapping to case classes") {
     val ab = prop("a") :: prop("b") >< (AB <-> AB.unapply _)
     
