@@ -11,7 +11,7 @@ class ExampleSpec extends BaseSuite {
   
   // A property that can store a string in a map with a certain key
   def prop(s: String) = new ReadWrite[Map[String,String], String] {
-    def read(map: Map[String,String]) = map.get(s).toSuccess(missing(s).pure)
+    def read(map: Map[String,String]) = map.get(s).toSuccess(missing(s).pure[NonEmptyList])
     def put(value: String, map: Map[String,String]) = {
       map + (s -> value)
     }.success
@@ -33,7 +33,7 @@ class ExampleSpec extends BaseSuite {
     }
     
     val incomplete = Map[String,String]()
-    ab.read(incomplete).failure.map(_.list) should equal {
+    ab.read(incomplete).fail.toOption.map(_.list) should equal {
       Some(List(missing("a"), missing("b"), missing("c")))
     }
   }
